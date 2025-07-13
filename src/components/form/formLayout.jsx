@@ -1,51 +1,62 @@
 import styles from './form.module.css';
-
 export const FormLayout = ({
-	email,
-	login,
-	password,
+	register,
+	handleSubmit,
 	onSubmit,
-	updateState,
-	clearState,
-	loginError,
-	onLoginChange,
-	onBlur,
+	submitButtonRef,
+	emailError,
+	passwordError,
+	confirmPasswordError,
+	comparedPassword,
+	setComparedPassword,
 }) => {
 	return (
 		<div className={styles.formContainer}>
-			<form onSubmit={onSubmit}>
+			<form onSubmit={handleSubmit(onSubmit)}>
 				<input
 					type="email"
 					name="email"
-					value={email}
 					placeholder="mail"
-					onChange={({ target }) => updateState('email', target.value)}
-				/>
-				<input
-					type="text"
-					name="login"
-					value={login}
-					placeholder="login"
-					onChange={({ target }) => {
-						updateState('login', target.value);
-						onLoginChange(target.value);
-					}}
-					onBlur={onBlur}
+					{...register('email')}
 				/>
 				<input
 					type="password"
 					name="password"
-					value={password}
 					placeholder="password"
-					onChange={({ target }) => updateState('password', target.value)}
+					{...register('password', {
+						onBlur: ({ target }) => {
+							setComparedPassword(target.value);
+						},
+					})}
 				/>
-				<button type="button" onClick={clearState}>
-					Cancel
+				<input
+					type="password"
+					name="confirmPassword"
+					placeholder="confirm password"
+					{...register('confirmPassword', {
+						onChange: ({ target }) => {
+							if (target.value === comparedPassword)
+								// aaaaaaaa какая же грязь
+								setTimeout(() => {
+									submitButtonRef.current.focus();
+								}, 0);
+						},
+					})}
+				/>
+				<button
+					type="submit"
+					ref={submitButtonRef}
+					disabled={!!emailError || !!passwordError || !!confirmPasswordError}
+				>
+					Register
 				</button>
-				<button type="submit" disabled={loginError !== null}>
-					Submit
-				</button>
-				{loginError && <div className={styles.errorLabel}>{loginError}</div>}
+				{emailError && <div className={styles.errorLabel}>{emailError}</div>}
+				{passwordError && (
+					<div className={styles.errorLabel}>{passwordError}</div>
+				)}
+				{confirmPasswordError && (
+					<div className={styles.errorLabel}>{confirmPasswordError}</div>
+				)}
 			</form>
 		</div>
 	);

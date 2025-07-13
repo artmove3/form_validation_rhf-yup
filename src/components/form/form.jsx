@@ -1,46 +1,46 @@
-import { sendData } from '../../utils/formUtils';
+import { fieldsScheme } from '../../utils/yupFields';
+import { useForm } from 'react-hook-form';
 import { FormLayout } from './formLayout';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useRef, useState } from 'react';
 
-export const Form = ({ useStore, loginError, setLoginError }) => {
-	const { getState, updateState, clearState } = useStore();
+export const Form = () => {
+	const {
+		register,
+		handleSubmit,
+		formState: { errors },
+	} = useForm({
+		defaultValues: {
+			email: '',
+			password: '',
+			confirmPassword: '',
+		},
+		resolver: yupResolver(fieldsScheme),
+		mode: 'onChange',
+	});
+	const [comparedPassword, setComparedPassword] = useState('');
+	const emailError = errors.email?.message;
+	const passwordError = errors.password?.message;
+	const confirmPasswordError = errors.confirmPassword?.message;
 
-	const onSubmit = (event) => {
-		event.preventDefault();
-		sendData(getState());
-		clearState();
+	const onSubmit = (formData) => {
+		console.log(formData);
+		setComparedPassword('');
 	};
 
-	const onLoginChange = (value) => {
-		let error = null;
-
-		if (!/^[\w_]*$/.test(value)) {
-			error =
-				'Неверный логин. Допустимые символы - буквы, цифры и нижнее подчеркивание.';
-		} else if (value.length > 20) {
-			error = 'Неверный логин. Должно быть не больше 20 символов.';
-		}
-
-		setLoginError(error);
-	};
-
-	const onLoginBlur = () => {
-		if (login.length < 3)
-			setLoginError('Неверный логин. Должно быть не менее 3 символов.');
-	};
-
-	const { email, login, password } = getState();
+	const submitButtonRef = useRef(null);
 
 	return (
 		<FormLayout
-			email={email}
-			login={login}
-			password={password}
+			register={register}
+			handleSubmit={handleSubmit}
 			onSubmit={onSubmit}
-			updateState={updateState}
-			clearState={clearState}
-			loginError={loginError}
-			onLoginChange={onLoginChange}
-			onBlur={onLoginBlur}
+			submitButtonRef={submitButtonRef}
+			emailError={emailError}
+			passwordError={passwordError}
+			confirmPasswordError={confirmPasswordError}
+			comparedPassword={comparedPassword}
+			setComparedPassword={setComparedPassword}
 		/>
 	);
 };
