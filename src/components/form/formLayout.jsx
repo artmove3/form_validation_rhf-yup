@@ -46,7 +46,7 @@ export const FormLayout = ({
 				<button
 					type="submit"
 					ref={submitButtonRef}
-					disabled={!!emailError && !!passwordError && !!confirmPasswordError}
+					disabled={!!emailError || !!passwordError || !!confirmPasswordError}
 				>
 					Register
 				</button>
